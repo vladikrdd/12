@@ -17,13 +17,6 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Prepare Windows MinGW
-      run: |
-        rustup toolchain install stable-x86_64-pc-windows-gnu
-        rustup target add x86_64-pc-windows-gnu
-        rustup default stable-x86_64-pc-windows-gnu
-        rustup set default-host x86_64-pc-windows-gnu
-
     - name: Install Vulkan SDK
       uses: humbletim/install-vulkan-sdk@v1.2
       with:
@@ -37,12 +30,11 @@ jobs:
         workspaces: |
           ./
 
-    - name: Build in release mode
+    - name: Build in release mode (MSVC)
       run: |
         mkdir release
         cd release
-        cmake -G Ninja -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DEXCEPTION_HANDLING=ON -DCMAKE_RC_COMPILER=windres -DCMAKE_AR=ar -DVULKAN=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=. ..
-        Remove-Item libwinpthread-1.dll -ErrorAction SilentlyContinue
+        cmake -A x64 -DEXCEPTION_HANDLING=ON -DVULKAN=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=. ..
         cmake --build . --config Release --target everything
 
     - name: Package
